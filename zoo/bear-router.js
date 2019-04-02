@@ -14,26 +14,55 @@ const db = knex(knexConfig);
 // HELPER FUNCTIONS 
 
 function targetById(id) {
-    return db('zoos')
+    return db('bears')
     .where({
         id: Number(id)
     })
 }
 
+// GET BEARS 
 
-// POST  to zoos 
+router.get('/', (req, res) => {
+    db('bears') 
+    .then(bears => {
+        res.status(200)
+        .json(bears);
+    })
+    .catch (error => {
+        res.status(500)
+        .json(error)
+    })
+})
+
+
+// GET BEARS BY ID
+
+router.get('/:id', (req, res) => {
+    targetById(req.params.id)
+    .then(bear => {
+        res.status(200)
+        .json(bear)
+    })
+    .catch(error => {
+        res.status(500)
+        .json(error)
+    })
+})
+
+
+// POST BEARS 
 
 router.post('/', (req, res) => {
-    db('zoos')
+    db('bears')
     .insert(req.body)
     .then(ids => {
         const [id] = ids 
-        db('zoos')
+        db('bears')
         .where({id})
         .first()
-        .then(zoo => {
+        .then(bear => {
             res.status(200)
-            .json(zoo)
+            .json(bear)
         })
     })
     .catch(error => {
@@ -42,35 +71,9 @@ router.post('/', (req, res) => {
     })
 })
 
-// GET from zoos 
 
-router.get('/', (req, res) => {
-    db('zoos') 
-    .then(zoos => {
-        res.status(200)
-        .json(zoos);
-    })
-    .catch (error => {
-        res.status(500)
-        .json(error)
-    })
-})
+// DELETE BEARS 
 
-// GET BY ID from zoos
-
-router.get('/:id', (req, res) => {
-    targetById(req.params.id)
-    .then(zoo => {
-        res.status(200)
-        .json(zoo)
-    })
-    .catch(error => {
-        res.status(500)
-        .json(error)
-    })
-})
-
-// DELETE from zoos 
 router.delete('/:id', (req, res) => {
     targetById(req.params.id).del()
     .then(count => {
@@ -84,20 +87,21 @@ router.delete('/:id', (req, res) => {
     })
 })
 
-// PUT to zoos 
+
+// UPDATE BEARS 
 
 router.put('/:id', (req, res) => {
-    db('zoos')
+    db('bears')
     .where({id: req.params.id})
     .update(req.body)
     .then(count => {
         if (count>0) {
-        db('zoos')
+        db('bears')
         .where({id: req.params.id})
         .first()
-        .then(zoo => { 
+        .then(bear => { 
         res.status(200)
-        .json(zoo) }) } 
+        .json(bear) }) } 
         else {
             res.status(404)
             .json({ error: `Couldn't find it so I couldn't update it.`})
@@ -106,7 +110,6 @@ router.put('/:id', (req, res) => {
         res.status(500)
         .json(error))
 })
-
 
 
 module.exports = router; 
