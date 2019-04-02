@@ -20,11 +20,6 @@ function targetById(id) {
     })
 }
 
-function update(id, item) {
-    targetById(id)
-    .update(item)
-} 
-
 
 // POST  to zoos 
 
@@ -93,13 +88,21 @@ router.delete('/:id', (req, res) => {
 // PUT to zoos 
 
 router.put('/:id', (req, res) => {
-    db('zoos').update(req.params.id, req.body)
+    db('zoos')
+    .where({id: req.params.id})
+    .update(req.body)
     .then(count => {
         if (count>0) {
-            res.status(200)
-            .json(count)
-        } 
-    })
+        db('zoos')
+        .where({id: req.params.id})
+        .first()
+        .then(zoo => { 
+        res.status(200)
+        .json(zoo) }) } 
+        else {
+            res.status(404)
+            .json({ error: `Couldn't find it so I couldn't update it.`})
+        }})
     .catch(error => 
         res.status(500)
         .json(error))
